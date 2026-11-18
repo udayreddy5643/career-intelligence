@@ -1,0 +1,22 @@
+{
+    "name": "cynaris/career-intelligence",
+    "type": "project",
+    "description": "Project 4: CIA Career Intelligence — Core Modules | Cynaris Solutions Full Stack Internship",
+    "keywords": ["cynaris", "laravel", "cia", "career-intelligence", "groq", "openrouter", "chromadb"],
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
