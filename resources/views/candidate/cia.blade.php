@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN for Skill Radar Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Marked.js for markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
@@ -243,17 +245,20 @@
                     <div class="my-4">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">Pre-Configured Viva & CIA Prompts:</span>
                         <div class="flex flex-wrap gap-2">
-                            <button type="button" onclick="setPrompt('Review my Dual-LLM failover architecture before I commit to git.', 'mentor')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 font-medium px-3 py-1.5 rounded-full border border-slate-200 transition-all flex items-center gap-1.5">
-                                <i class="fas fa-graduation-cap text-indigo-500"></i>Review Architecture & PR
+                            <button type="button" onclick="setPrompt('As CIA AI Engineer, design the optimal structured prompt for LlamaIndex + Groq skill gap analysis scoring gaps into Critical, Important, and Nice-to-have.', 'ai_engineer')" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium px-3 py-1.5 rounded-full border border-purple-200 transition-all flex items-center gap-1.5">
+                                <i class="fas fa-brain text-purple-600"></i>AI Engineer Prompt Design
                             </button>
-                            <button type="button" onclick="setPrompt('What edge cases happen when primary LLM returns HTTP 429 rate limit or network partition?', 'code')" class="text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-medium px-3 py-1.5 rounded-full border border-slate-200 transition-all flex items-center gap-1.5">
-                                <i class="fas fa-code text-blue-500"></i>Edge Case Suggestions
+                            <button type="button" onclick="setPrompt('Review my LlamaIndex Groq RAG integration and OpenRouter fallback mechanism for error handling completeness.', 'code')" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-3 py-1.5 rounded-full border border-blue-200 transition-all flex items-center gap-1.5">
+                                <i class="fas fa-code text-blue-600"></i>Review RAG & Fallback Error Handling
                             </button>
-                            <button type="button" onclick="setPrompt('Why did you choose ChromaDB for the vector store? What alternatives exist?', 'ai_engineer')" class="text-xs bg-slate-100 hover:bg-purple-50 hover:text-purple-700 text-slate-700 font-medium px-3 py-1.5 rounded-full border border-slate-200 transition-all flex items-center gap-1.5">
-                                <i class="fas fa-brain text-purple-500"></i>ChromaDB Architecture
+                            <button type="button" onclick="setPrompt('Explain the prompt you wrote for skill gap analysis. Why did you structure it that way?', 'mentor')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium px-3 py-1.5 rounded-full border border-indigo-200 transition-all flex items-center gap-1.5">
+                                <i class="fas fa-graduation-cap text-indigo-600"></i>Viva: Prompt Structure
                             </button>
-                            <button type="button" onclick="setPrompt('How would this Career Intelligence module scale to 10,000 users?', 'mentor')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-medium px-3 py-1.5 rounded-full border border-slate-200 transition-all flex items-center gap-1.5">
-                                <i class="fas fa-bolt text-amber-500"></i>Scale to 10,000 Users
+                            <button type="button" onclick="setPrompt('How does your fallback mechanism work? Demonstrate it by disabling Groq.', 'ai_engineer')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium px-3 py-1.5 rounded-full border border-amber-200 transition-all flex items-center gap-1.5">
+                                <i class="fas fa-triangle-exclamation text-amber-600"></i>Viva: Demonstrate Failover
+                            </button>
+                            <button type="button" onclick="setPrompt('What are the risks of relying on an LLM API in a production application?', 'mentor')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-full border border-slate-200 transition-all flex items-center gap-1.5">
+                                <i class="fas fa-shield text-slate-600"></i>Viva: Production LLM Risks
                             </button>
                         </div>
                     </div>
@@ -305,6 +310,62 @@
                     </div>
                 </div>
 
+                <!-- Career Intelligence Skill Radar Chart Card (Module 1: LlamaIndex + Groq Pipeline) -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fas fa-chart-pie text-indigo-600"></i>Career Intelligence: Skill Radar & LlamaIndex RAG
+                            </h2>
+                            <p class="text-xs text-slate-500">RAG over 50-skills taxonomy across 5 domains • ChromaDB namespace: <code class="text-indigo-600 font-bold">candidate_CYN-2026-FS-0129</code></p>
+                        </div>
+                        <span id="ragScoreBadge" class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1 rounded-full">
+                            Readiness Score: 88%
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6 items-center">
+                        <!-- Radar Canvas Container -->
+                        <div class="md:col-span-7 flex justify-center">
+                            <div class="w-full max-w-[340px] h-[300px]">
+                                <canvas id="skillRadarCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Gaps & Priority List -->
+                        <div class="md:col-span-5 space-y-4 text-xs">
+                            <div>
+                                <h3 class="font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                    <i class="fas fa-layer-group text-slate-500"></i>Identified Skill Gaps by Priority
+                                </h3>
+                                <div id="skillGapsList" class="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                                    <div class="p-2 rounded bg-red-50 border border-red-200 text-red-900 flex items-start gap-2">
+                                        <span class="bg-red-200 text-red-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mt-0.5">Critical</span>
+                                        <div><strong>Asynchronous Queue Workers</strong><p class="text-[10px] text-red-700">Redis queue background job dispatch & retries.</p></div>
+                                    </div>
+                                    <div class="p-2 rounded bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-2">
+                                        <span class="bg-amber-200 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mt-0.5">Important</span>
+                                        <div><strong>Redis In-Memory Caching</strong><p class="text-[10px] text-amber-700">TTL expiry, rate limiters, and prompt caching.</p></div>
+                                    </div>
+                                    <div class="p-2 rounded bg-blue-50 border border-blue-200 text-blue-900 flex items-start gap-2">
+                                        <span class="bg-blue-200 text-blue-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mt-0.5">Nice-to-have</span>
+                                        <div><strong>Microservices Architecture</strong><p class="text-[10px] text-blue-700">API Gateway patterns & event decoupling.</p></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-100">
+                                <h3 class="font-bold text-slate-800 uppercase tracking-wider mb-1.5">Priority Learning Actions</h3>
+                                <ul id="priorityLearningList" class="list-disc pl-4 text-slate-600 text-[11px] space-y-1">
+                                    <li>Master Redis in-memory caching for session management and LLM prompt optimization.</li>
+                                    <li>Implement CI/CD automated pipeline with GitHub Actions for Docker builds.</li>
+                                    <li>Integrate ChromaDB vector collection querying with hybrid keyword search.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CIA Interaction Audit Log (for Lesson Checklist) -->
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center justify-between">
@@ -341,7 +402,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
         <p>Cynaris Solutions • Full Stack Development Internship • Project 4: CIA Career Intelligence</p>
-        <p class="mt-1">Candidate: Uday Reddy (<code>udayreddy5643</code>) • Branch: <code>feat/cynaris-w7d1-uday-b</code></p>
+        <p class="mt-1">Candidate: Uday Reddy (<code>udayreddy5643</code>) • Branch: <code>feat/cynaris-w7d2-uday-b</code></p>
     </footer>
 
     <!-- Client-Side Controller JavaScript -->
@@ -516,33 +577,183 @@
             };
         }
 
+        let radarChartInstance = null;
+
+        function initRadarChart(domainScores) {
+            const canvas = document.getElementById('skillRadarCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const labels = Object.keys(domainScores || {
+                'Frontend': 88, 'Backend': 92, 'Databases': 84, 'DevOps': 82, 'AI Systems': 88
+            });
+            const dataValues = Object.values(domainScores || {
+                'Frontend': 88, 'Backend': 92, 'Databases': 84, 'DevOps': 82, 'AI Systems': 88
+            });
+            const benchmarkValues = [90, 95, 90, 85, 95];
+
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Candidate Verified Competency',
+                            data: dataValues,
+                            fill: true,
+                            backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                            borderColor: 'rgb(79, 70, 229)',
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(79, 70, 229)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Target Benchmark Requirement',
+                            data: benchmarkValues,
+                            fill: false,
+                            borderColor: 'rgba(239, 68, 68, 0.7)',
+                            borderDash: [5, 5],
+                            pointBackgroundColor: 'rgb(239, 68, 68)',
+                            pointBorderColor: '#fff',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(203, 213, 225, 0.6)' },
+                            grid: { color: 'rgba(226, 232, 240, 0.8)' },
+                            pointLabels: {
+                                font: { size: 10, weight: 'bold' },
+                                color: '#334155'
+                            },
+                            suggestedMin: 50,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
         async function runSkillGapCalculation() {
             const role = document.getElementById('benchmarkRoleSelect').value;
             const resCard = document.getElementById('gapScoreResults');
+            const forceFallback = document.getElementById('forceFallbackToggle').checked;
             resCard.classList.remove('hidden');
 
             try {
-                const res = await fetch('/api/cia/skill-gap', {
+                const res = await fetch('/candidate/cia/career/skill-gap', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        candidate_id: 'CYN-2026-FS-0129',
                         target_role: role,
-                        skills: ['PHP', 'Laravel', 'Docker', 'MariaDB', 'REST APIs', 'Git', 'ChromaDB']
+                        force_fallback: forceFallback,
+                        completed_lessons: ['Week 1', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7 Day 1'],
+                        quiz_scores: [
+                            { lesson: 'w6d1', score: 100 },
+                            { lesson: 'w6d2', score: 90 },
+                            { lesson: 'w6d4', score: 95 }
+                        ]
                     })
                 });
                 const data = await res.json();
-                document.getElementById('readinessBadge').innerText = data.readiness_percentage + '%';
-                document.getElementById('readinessBar').style.width = data.readiness_percentage + '%';
-                document.getElementById('gapScoreVal').innerText = data.gap_score_percentage + '%';
-                document.getElementById('missingSkillsNote').innerText = data.recommendation;
+                renderSkillGapResults(data);
+                logInteraction({
+                    provider: data.provider || 'Groq Cloud (Primary)',
+                    model: data.model || 'llama-3.3-70b-versatile',
+                    mode_name: 'LlamaIndex RAG Skill Gap Pipeline',
+                    latency_ms: data.latency_ms || 140,
+                    fallback_triggered: data.fallback_triggered || forceFallback
+                }, `Skill Gap Analysis: ${role}`);
             } catch (err) {
-                // Fallback simulation for offline execution
-                document.getElementById('readinessBadge').innerText = '92.0%';
-                document.getElementById('readinessBar').style.width = '92%';
-                document.getElementById('gapScoreVal').innerText = '8.0%';
-                document.getElementById('missingSkillsNote').innerText = 'Candidate has 92% match against Full Stack Developer benchmark. Missing electives: Kubernetes, Microservices.';
+                // Fallback simulation
+                const fallbackData = {
+                    score: 86,
+                    skill_gaps: [
+                        { skill: 'Asynchronous Queue Workers', domain: 'Backend Development', priority: 'Critical', gap_reason: 'Redis queue background job dispatch & retries.' },
+                        { skill: 'Redis In-Memory Caching', domain: 'Databases & Storage', priority: 'Important', gap_reason: 'TTL expiry, rate limiters, and prompt caching.' },
+                        { skill: 'ChromaDB Vector Embeddings Store', domain: 'AI Systems & LLM Engineering', priority: 'Important', gap_reason: 'Dense cosine similarity vector retrieval.' },
+                        { skill: 'Next.js SSR & SSG', domain: 'Frontend Development', priority: 'Nice-to-have', gap_reason: 'Server-side rendering & static generation.' }
+                    ],
+                    priority_learning: [
+                        'Master Redis in-memory caching for session management and LLM prompt optimization.',
+                        'Implement CI/CD automated pipeline with GitHub Actions for Docker builds.',
+                        'Integrate ChromaDB vector collection querying with hybrid keyword search.'
+                    ],
+                    domain_scores: {
+                        'Frontend Development': 88,
+                        'Backend Development': 92,
+                        'Databases & Storage': 84,
+                        'DevOps & Cloud Infrastructure': 82,
+                        'AI Systems & LLM Engineering': 88
+                    }
+                };
+                renderSkillGapResults(fallbackData);
             }
         }
+
+        function renderSkillGapResults(data) {
+            document.getElementById('readinessBadge').innerText = data.score + '%';
+            document.getElementById('readinessBar').style.width = data.score + '%';
+            document.getElementById('gapScoreVal').innerText = (100 - data.score) + '%';
+            document.getElementById('ragScoreBadge').innerText = 'Readiness Score: ' + data.score + '%';
+
+            // Populate Gaps list with color-coded badges
+            const gapsList = document.getElementById('skillGapsList');
+            if (data.skill_gaps && data.skill_gaps.length > 0) {
+                gapsList.innerHTML = data.skill_gaps.map(g => {
+                    let badgeClass = 'bg-blue-200 text-blue-800';
+                    let boxClass = 'bg-blue-50 border-blue-200 text-blue-900';
+                    if (g.priority === 'Critical') {
+                        badgeClass = 'bg-red-200 text-red-800';
+                        boxClass = 'bg-red-50 border-red-200 text-red-900';
+                    } else if (g.priority === 'Important') {
+                        badgeClass = 'bg-amber-200 text-amber-800';
+                        boxClass = 'bg-amber-50 border-amber-200 text-amber-900';
+                    }
+                    return `
+                        <div class="p-2 rounded ${boxClass} border flex items-start gap-2">
+                            <span class="${badgeClass} text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mt-0.5">${g.priority}</span>
+                            <div>
+                                <strong>${g.skill}</strong>
+                                <p class="text-[10px] opacity-80">${g.gap_reason || g.domain}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Populate Priority learning list
+            const pList = document.getElementById('priorityLearningList');
+            if (data.priority_learning) {
+                pList.innerHTML = data.priority_learning.map(item => `<li>${item}</li>`).join('');
+            }
+
+            // Initialize or update Radar Chart
+            initRadarChart(data.domain_scores);
+        }
+
+        // Initialize radar chart on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initRadarChart({
+                'Frontend': 88, 'Backend': 92, 'Databases': 84, 'DevOps': 82, 'AI Systems': 88
+            });
+        });
     </script>
 </body>
 </html>

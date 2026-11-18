@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Web;
 
 use App\Services\CiaService;
+use App\Services\SkillGapRagService;
 
 /**
  * CIA Controller — Career Intelligence Agent Web & API Controller
  * 
  * Handles Candidate CIA Mode interactions, API contracts, prompt routing,
- * dual-LLM resilience failover, and candidate career analytics.
+ * dual-LLM resilience failover, LlamaIndex RAG over skills taxonomy,
+ * and ChromaDB candidate vector persistence.
  *
  * @package App\Http\Controllers\Web
  * @author Uday Reddy (b.udayreddy5643@gmail.com)
@@ -16,10 +18,12 @@ use App\Services\CiaService;
 class CiaController
 {
     protected CiaService $ciaService;
+    protected SkillGapRagService $skillGapRagService;
 
-    public function __construct(?CiaService $ciaService = null)
+    public function __construct(?CiaService $ciaService = null, ?SkillGapRagService $skillGapRagService = null)
     {
         $this->ciaService = $ciaService ?: new CiaService();
+        $this->skillGapRagService = $skillGapRagService ?: new SkillGapRagService($this->ciaService);
     }
 
     /**
@@ -219,5 +223,56 @@ class CiaController
                 : 'Address core skill gaps before applying.',
             'timestamp' => date('c'),
         ];
+    }
+
+    /**
+     * API Contract: LlamaIndex + Groq RAG Skill Gap Analysis Endpoint
+     * Endpoint: POST /candidate/cia/career/skill-gap
+     *
+     * Inputs:
+     * - candidate's completed lessons + quiz scores (from DB/request)
+     * - target job role (from request)
+     *
+     * Returns structured JSON:
+     * {
+     *   "skill_gaps": [],
+     *   "score": 0-100,
+     *   "priority_learning": [],
+     *   "domain_scores": {}
+     * }
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function careerSkillGap($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $targetRole = $data['target_role'] ?? 'Full Stack Developer';
+        $completedLessons = $data['completed_lessons'] ?? ['Week 1', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7 Day 1'];
+        $quizScores = $data['quiz_scores'] ?? [
+            ['lesson' => 'Week 6 Day 1: AI Tutor', 'score' => 100],
+            ['lesson' => 'Week 6 Day 2: AI Quiz', 'score' => 90],
+            ['lesson' => 'Week 6 Day 4: Query Audit', 'score' => 95],
+            ['lesson' => 'Week 7 Day 1: CIA Architecture', 'score' => 92],
+        ];
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->skillGapRagService->analyze(
+            $candidateId,
+            $targetRole,
+            $completedLessons,
+            $quizScores,
+            $forceFallback
+        );
     }
 }
