@@ -2,13 +2,35 @@
 
 namespace App\Http\Controllers\Web;
 
+// Ensure dependent services are loaded in standalone CLI test environments
+if (!class_exists(\App\Services\CiaService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/CiaService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/CiaService.php';
+}
+if (!class_exists(\App\Services\SkillGapRagService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/SkillGapRagService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/SkillGapRagService.php';
+}
+if (!class_exists(\App\Services\CareerAdvisorCrewService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/CareerAdvisorCrewService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/CareerAdvisorCrewService.php';
+}
+if (!class_exists(\App\Services\InternshipMatchingService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/InternshipMatchingService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/InternshipMatchingService.php';
+}
+if (!class_exists(\App\Services\LearningPathService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/LearningPathService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/LearningPathService.php';
+}
+
 use App\Services\CiaService;
+use App\Services\SkillGapRagService;
+use App\Services\CareerAdvisorCrewService;
+use App\Services\InternshipMatchingService;
+use App\Services\LearningPathService;
 
 /**
  * CIA Controller — Career Intelligence Agent Web & API Controller
  * 
  * Handles Candidate CIA Mode interactions, API contracts, prompt routing,
- * dual-LLM resilience failover, and candidate career analytics.
+ * dual-LLM resilience failover, LlamaIndex RAG over skills taxonomy,
+ * ChromaDB candidate vector persistence, and CrewAI Career Recommendations.
  *
  * @package App\Http\Controllers\Web
  * @author Uday Reddy (b.udayreddy5643@gmail.com)
@@ -16,10 +38,23 @@ use App\Services\CiaService;
 class CiaController
 {
     protected CiaService $ciaService;
+    protected SkillGapRagService $skillGapRagService;
+    protected CareerAdvisorCrewService $careerAdvisorCrewService;
+    protected InternshipMatchingService $internshipMatchingService;
+    protected LearningPathService $learningPathService;
 
-    public function __construct(?CiaService $ciaService = null)
-    {
+    public function __construct(
+        ?CiaService $ciaService = null,
+        ?SkillGapRagService $skillGapRagService = null,
+        ?CareerAdvisorCrewService $careerAdvisorCrewService = null,
+        ?InternshipMatchingService $internshipMatchingService = null,
+        ?LearningPathService $learningPathService = null
+    ) {
         $this->ciaService = $ciaService ?: new CiaService();
+        $this->skillGapRagService = $skillGapRagService ?: new SkillGapRagService($this->ciaService);
+        $this->careerAdvisorCrewService = $careerAdvisorCrewService ?: new CareerAdvisorCrewService($this->ciaService);
+        $this->internshipMatchingService = $internshipMatchingService ?: new InternshipMatchingService($this->ciaService);
+        $this->learningPathService = $learningPathService ?: new LearningPathService($this->ciaService);
     }
 
     /**
@@ -219,5 +254,158 @@ class CiaController
                 : 'Address core skill gaps before applying.',
             'timestamp' => date('c'),
         ];
+    }
+
+    /**
+     * API Contract: LlamaIndex + Groq RAG Skill Gap Analysis Endpoint
+     * Endpoint: POST /candidate/cia/career/skill-gap
+     *
+     * Inputs:
+     * - candidate's completed lessons + quiz scores (from DB/request)
+     * - target job role (from request)
+     *
+     * Returns structured JSON:
+     * {
+     *   "skill_gaps": [],
+     *   "score": 0-100,
+     *   "priority_learning": [],
+     *   "domain_scores": {}
+     * }
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function careerSkillGap($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $targetRole = $data['target_role'] ?? 'Full Stack Developer';
+        $completedLessons = $data['completed_lessons'] ?? ['Week 1', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7 Day 1'];
+        $quizScores = $data['quiz_scores'] ?? [
+            ['lesson' => 'Week 6 Day 1: AI Tutor', 'score' => 100],
+            ['lesson' => 'Week 6 Day 2: AI Quiz', 'score' => 90],
+            ['lesson' => 'Week 6 Day 4: Query Audit', 'score' => 95],
+            ['lesson' => 'Week 7 Day 1: CIA Architecture', 'score' => 92],
+        ];
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->skillGapRagService->analyze(
+            $candidateId,
+            $targetRole,
+            $completedLessons,
+            $quizScores,
+            $forceFallback
+        );
+    }
+
+    /**
+     * API Contract: CrewAI Career Recommendation Engine Endpoint
+     * Endpoint: POST /candidate/cia/career/recommend
+     *
+     * Given intern's skill profile and ChromaDB gaps, recommends
+     * 3 career paths with rationale and 6-month roadmap.
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function recommendCareer($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $targetRole = $data['target_role'] ?? 'Full Stack Developer';
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->careerAdvisorCrewService->recommend(
+            $candidateId,
+            $targetRole,
+            $forceFallback
+        );
+    }
+
+    /**
+     * API Contract: ChromaDB Vector Search Internship Matching
+     * Endpoint: POST /candidate/cia/career/match-internships
+     *
+     * Logic: embed candidate skill profile -> cosine similarity search in ChromaDB collection
+     * 'cynaris_internship_roles' -> return top 5 matching roles with match % score and missing skills.
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function matchInternships($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $skills = $data['skills'] ?? [];
+        $limit = isset($data['limit']) ? (int) $data['limit'] : 5;
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->internshipMatchingService->matchInternships(
+            $candidateId,
+            $skills,
+            $limit,
+            $forceFallback
+        );
+    }
+
+    /**
+     * API Contract: LangGraph 8-Week Learning Path Generator
+     * Endpoint: POST /candidate/cia/career/learning-path
+     *
+     * Executes LangGraph State Machine:
+     * AssessCurrentState -> IdentifyGaps -> GeneratePlan -> ValidatePlan -> OutputPlan
+     * Returns 8-week structured curriculum + Mermaid timeline diagram syntax.
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function learningPath($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $targetRole = $data['target_role'] ?? 'Full Stack Software Engineer';
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->learningPathService->generateLearningPath(
+            $candidateId,
+            $targetRole,
+            $forceFallback
+        );
     }
 }
