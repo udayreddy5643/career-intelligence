@@ -24,6 +24,9 @@ Route::prefix('candidate')->name('candidate.')->group(function () {
 
     // Week 7 Day 2: Module 1 Skill Gap Analysis (LlamaIndex + Groq Pipeline)
     Route::post('/cia/career/skill-gap', [CiaController::class, 'careerSkillGap'])->name('cia.career.skill-gap');
+
+    // Week 7 Day 3: Module 2 Career Recommendation Engine (CrewAI Agent)
+    Route::post('/cia/career/recommend', [CiaController::class, 'recommendCareer'])->name('cia.career.recommend');
 });
 
 /*
@@ -40,4 +43,7 @@ Route::prefix('api/cia')->name('api.cia.')->group(function () {
     
     // Candidate skill gap computation algorithm (supports both standard and RAG endpoints)
     Route::post('/skill-gap', [CiaController::class, 'careerSkillGap'])->name('skill-gap');
+
+    // CrewAI Career Recommendations Endpoint
+    Route::post('/recommend', [CiaController::class, 'recommendCareer'])->name('recommend');
 });

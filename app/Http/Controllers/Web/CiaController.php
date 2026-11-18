@@ -2,15 +2,27 @@
 
 namespace App\Http\Controllers\Web;
 
+// Ensure dependent services are loaded in standalone CLI test environments
+if (!class_exists(\App\Services\CiaService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/CiaService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/CiaService.php';
+}
+if (!class_exists(\App\Services\SkillGapRagService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/SkillGapRagService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/SkillGapRagService.php';
+}
+if (!class_exists(\App\Services\CareerAdvisorCrewService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/CareerAdvisorCrewService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/CareerAdvisorCrewService.php';
+}
+
 use App\Services\CiaService;
 use App\Services\SkillGapRagService;
+use App\Services\CareerAdvisorCrewService;
 
 /**
  * CIA Controller — Career Intelligence Agent Web & API Controller
  * 
  * Handles Candidate CIA Mode interactions, API contracts, prompt routing,
  * dual-LLM resilience failover, LlamaIndex RAG over skills taxonomy,
- * and ChromaDB candidate vector persistence.
+ * ChromaDB candidate vector persistence, and CrewAI Career Recommendations.
  *
  * @package App\Http\Controllers\Web
  * @author Uday Reddy (b.udayreddy5643@gmail.com)
@@ -19,11 +31,16 @@ class CiaController
 {
     protected CiaService $ciaService;
     protected SkillGapRagService $skillGapRagService;
+    protected CareerAdvisorCrewService $careerAdvisorCrewService;
 
-    public function __construct(?CiaService $ciaService = null, ?SkillGapRagService $skillGapRagService = null)
-    {
+    public function __construct(
+        ?CiaService $ciaService = null,
+        ?SkillGapRagService $skillGapRagService = null,
+        ?CareerAdvisorCrewService $careerAdvisorCrewService = null
+    ) {
         $this->ciaService = $ciaService ?: new CiaService();
         $this->skillGapRagService = $skillGapRagService ?: new SkillGapRagService($this->ciaService);
+        $this->careerAdvisorCrewService = $careerAdvisorCrewService ?: new CareerAdvisorCrewService($this->ciaService);
     }
 
     /**
@@ -272,6 +289,39 @@ class CiaController
             $targetRole,
             $completedLessons,
             $quizScores,
+            $forceFallback
+        );
+    }
+
+    /**
+     * API Contract: CrewAI Career Recommendation Engine Endpoint
+     * Endpoint: POST /candidate/cia/career/recommend
+     *
+     * Given intern's skill profile and ChromaDB gaps, recommends
+     * 3 career paths with rationale and 6-month roadmap.
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function recommendCareer($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $targetRole = $data['target_role'] ?? 'Full Stack Developer';
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->careerAdvisorCrewService->recommend(
+            $candidateId,
+            $targetRole,
             $forceFallback
         );
     }
