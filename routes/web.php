@@ -27,6 +27,9 @@ Route::prefix('candidate')->name('candidate.')->group(function () {
 
     // Week 7 Day 3: Module 2 Career Recommendation Engine (CrewAI Agent)
     Route::post('/cia/career/recommend', [CiaController::class, 'recommendCareer'])->name('cia.career.recommend');
+
+    // Week 7 Day 4: Module 3 Internship Matching (ChromaDB Vector Search)
+    Route::post('/cia/career/match-internships', [CiaController::class, 'matchInternships'])->name('cia.career.match-internships');
 });
 
 /*
@@ -46,4 +49,7 @@ Route::prefix('api/cia')->name('api.cia.')->group(function () {
 
     // CrewAI Career Recommendations Endpoint
     Route::post('/recommend', [CiaController::class, 'recommendCareer'])->name('recommend');
+
+    // ChromaDB Internship Vector Search Matching Endpoint
+    Route::post('/match-internships', [CiaController::class, 'matchInternships'])->name('match-internships');
 });
