@@ -1,0 +1,87 @@
+{
+  "version": "1.0",
+  "total_skills": 50,
+  "domains_count": 5,
+  "domains": [
+    {
+      "name": "Frontend Development",
+      "weight": 0.20,
+      "skills": [
+        {"id": "fe-01", "name": "HTML5 Semantic Structure", "level": "Core", "tier": "Critical", "description": "Semantic markup, accessibility (a11y), forms validation and SEO architecture."},
+        {"id": "fe-02", "name": "CSS3 & Modern Layouts", "level": "Core", "tier": "Critical", "description": "Flexbox, CSS Grid, animations, media queries, and responsive viewport design."},
+        {"id": "fe-03", "name": "JavaScript ES6+", "level": "Core", "tier": "Critical", "description": "Promises, async/await, closures, prototypes, destructuring, and ES modules."},
+        {"id": "fe-04", "name": "React.js Component Architecture", "level": "Core", "tier": "Critical", "description": "Functional components, hooks (useState, useEffect, useMemo), virtual DOM, and JSX."},
+        {"id": "fe-05", "name": "Tailwind CSS", "level": "Elective", "tier": "Important", "description": "Utility-first design systems, JIT engine, custom themes, and purge configurations."},
+        {"id": "fe-06", "name": "TypeScript Typing & Interfaces", "level": "Elective", "tier": "Important", "description": "Static type safety, generics, unions, and compiler configuration in frontend apps."},
+        {"id": "fe-07", "name": "Chart.js Data Visualization", "level": "Elective", "tier": "Important", "description": "Canvas-based dynamic charting, radar charts, line graphs, and reactive tooltips."},
+        {"id": "fe-08", "name": "Next.js SSR & SSG", "level": "Advanced", "tier": "Nice-to-have", "description": "Server-side rendering, static site generation, API routing, and hydration."},
+        {"id": "fe-09", "name": "Redux Toolkit & State Management", "level": "Advanced", "tier": "Nice-to-have", "description": "Global store dispatch, slices, thunks, selectors, and immutable state updates."},
+        {"id": "fe-10", "name": "Web Performance Optimization", "level": "Advanced", "tier": "Important", "description": "Lighthouse audits, code splitting, lazy loading, asset compression, and Core Web Vitals."}
+      ]
+    },
+    {
+      "name": "Backend Development",
+      "weight": 0.25,
+      "skills": [
+        {"id": "be-01", "name": "PHP 8.x Modern Features", "level": "Core", "tier": "Critical", "description": "Typed properties, match expressions, attributes, nullsafe operator, and JIT compiler."},
+        {"id": "be-02", "name": "Laravel Framework Architecture", "level": "Core", "tier": "Critical", "description": "Service container, dependency injection, middleware, Eloquent ORM, and Blade templating."},
+        {"id": "be-03", "name": "RESTful API Design & Contracts", "level": "Core", "tier": "Critical", "description": "HTTP verbs, standard status codes, RFC-compliant JSON payloads, and versioning."},
+        {"id": "be-04", "name": "MVC & Clean Code Patterns", "level": "Core", "tier": "Critical", "description": "Separation of concerns, thin controllers, fat models/services, and SOLID principles."},
+        {"id": "be-05", "name": "Python Fast Execution & AsyncIO", "level": "Elective", "tier": "Important", "description": "Coroutines, asyncio event loop, generators, and multi-threading execution."},
+        {"id": "be-06", "name": "FastAPI Web Framework", "level": "Elective", "tier": "Important", "description": "High-performance ASGI endpoints, Pydantic data validation, and OpenAPI generation."},
+        {"id": "be-07", "name": "Authentication & Authorization (JWT/OAuth2)", "level": "Core", "tier": "Critical", "description": "Bearer token verification, RBAC permissions, and stateless session security."},
+        {"id": "be-08", "name": "Microservices Communication Patterns", "level": "Advanced", "tier": "Important", "description": "API Gateway routing, service discovery, asynchronous events, and Saga orchestrations."},
+        {"id": "be-09", "name": "gRPC & Protocol Buffers", "level": "Advanced", "tier": "Nice-to-have", "description": "Binary payload serialization, bi-directional streaming, and HTTP/2 transport."},
+        {"id": "be-10", "name": "Asynchronous Queue Workers", "level": "Core", "tier": "Critical", "description": "Background task dispatch, Redis queues, failure retries, and dead-letter queues."}
+      ]
+    },
+    {
+      "name": "Databases & Storage",
+      "weight": 0.20,
+      "skills": [
+        {"id": "db-01", "name": "Relational Modeling & Normalization (3NF)", "level": "Core", "tier": "Critical", "description": "Entity-Relationship schemas, primary/foreign keys, 1NF/2NF/3NF, and referential integrity."},
+        {"id": "db-02", "name": "MySQL & MariaDB Query Execution", "level": "Core", "tier": "Critical", "description": "Complex JOINs, subqueries, aggregate grouping, and transactions with ACID guarantees."},
+        {"id": "db-03", "name": "EXPLAIN Query Performance Profiling", "level": "Core", "tier": "Critical", "description": "Execution plan inspection, table scans vs index lookups, and covering index tuning."},
+        {"id": "db-04", "name": "Redis In-Memory Caching", "level": "Core", "tier": "Critical", "description": "Key-value cache, hash sets, expiration TTL, rate limiting, and session stores."},
+        {"id": "db-05", "name": "ChromaDB Vector Embeddings Store", "level": "Elective", "tier": "Important", "description": "Dense vector collections, cosine similarity search, metadata filtering, and semantic RAG."},
+        {"id": "db-06", "name": "PostgreSQL & pgvector Extension", "level": "Elective", "tier": "Important", "description": "Relational table vector indexing, IVFFlat, HNSW graphs, and hybrid semantic queries."},
+        {"id": "db-07", "name": "Database Indexing Strategies (B-Tree, Hash)", "level": "Core", "tier": "Critical", "description": "Composite indexes, prefix indexing, cardinality optimization, and index bloat mitigation."},
+        {"id": "db-08", "name": "MongoDB Document NoSQL Modeling", "level": "Advanced", "tier": "Nice-to-have", "description": "BSON documents, aggregation pipelines, sharding, and embedded vs referenced schemas."},
+        {"id": "db-09", "name": "Database Migrations & Seeding", "level": "Core", "tier": "Critical", "description": "Versioned schema evolution, rollback safeguards, and deterministic test data generation."},
+        {"id": "db-10", "name": "Connection Pooling & Replication", "level": "Advanced", "tier": "Nice-to-have", "description": "Read replicas, primary write replication, connection pooling, and failover topologies."}
+      ]
+    },
+    {
+      "name": "DevOps & Cloud Infrastructure",
+      "weight": 0.15,
+      "skills": [
+        {"id": "ops-01", "name": "Git Advanced Branching & Rebasing", "level": "Core", "tier": "Critical", "description": "Feature branches, interactive rebase, cherry-pick, merge conflict resolution, and PR templates."},
+        {"id": "ops-02", "name": "Docker Containerization", "level": "Core", "tier": "Critical", "description": "Multi-stage Dockerfiles, layer caching, alpine runtimes, and non-root execution."},
+        {"id": "ops-03", "name": "Docker Compose Orchestration", "level": "Core", "tier": "Critical", "description": "Multi-container services, network bridges, volume mounts, and healthcheck dependencies."},
+        {"id": "ops-04", "name": "CI/CD Automated Pipelines", "level": "Core", "tier": "Critical", "description": "GitHub Actions workflows, automated linting, test runners, and build artifacts."},
+        {"id": "ops-05", "name": "Linux Shell Scripting & CLI", "level": "Core", "tier": "Critical", "description": "Bash automation, cron jobs, file permissions, process monitoring, and networking tools."},
+        {"id": "ops-06", "name": "Nginx Reverse Proxy & Load Balancing", "level": "Elective", "tier": "Important", "description": "Upstream proxying, SSL/TLS termination, gzip compression, and rate limiting rules."},
+        {"id": "ops-07", "name": "AWS Architecture (EC2, S3, ALB)", "level": "Elective", "tier": "Important", "description": "Virtual compute instances, object storage buckets, Application Load Balancers, and IAM roles."},
+        {"id": "ops-08", "name": "Railway & Cloud Container Deployment", "level": "Elective", "tier": "Important", "description": "PaaS deployment configurations, environment variables injection, and continuous delivery."},
+        {"id": "ops-09", "name": "Kubernetes Pod & Service Orchestration", "level": "Advanced", "tier": "Nice-to-have", "description": "Deployments, services, ingress controllers, ConfigMaps, and horizontal pod autoscalers."},
+        {"id": "ops-10", "name": "Observability & Centralized Logging", "level": "Advanced", "tier": "Important", "description": "Structured logging, metrics collection, distributed tracing, and Prometheus/Grafana alerts."}
+      ]
+    },
+    {
+      "name": "AI Systems & LLM Engineering",
+      "weight": 0.20,
+      "skills": [
+        {"id": "ai-01", "name": "Prompt Engineering & Few-Shot Design", "level": "Core", "tier": "Critical", "description": "Role-prompting, structured output enforcement, chain-of-thought, and hallucination reduction."},
+        {"id": "ai-02", "name": "Groq Cloud High-Speed Inference API", "level": "Core", "tier": "Critical", "description": "LPU inference acceleration, llama-3.3-70b integration, streaming responses, and token limits."},
+        {"id": "ai-03", "name": "OpenRouter Multi-Model Failover", "level": "Core", "tier": "Critical", "description": "Secondary provider resilience, model cascades, header configuration, and circuit-breaking."},
+        {"id": "ai-04", "name": "LlamaIndex Document Ingestion & RAG", "level": "Core", "tier": "Critical", "description": "VectorStoreIndex, Document readers, node chunking, query engines, and response synthesizers."},
+        {"id": "ai-05", "name": "Dense Vector Embeddings Generation", "level": "Core", "tier": "Critical", "description": "all-MiniLM-L6-v2 embeddings, token embeddings, semantic distance, and dimensionality mapping."},
+        {"id": "ai-06", "name": "ChromaDB Semantic Document Indexing", "level": "Core", "tier": "Critical", "description": "Collection creation, vector upsert with metadata, candidate namespace isolation, and querying."},
+        {"id": "ai-07", "name": "RAG Context Window Optimization", "level": "Elective", "tier": "Important", "description": "Top-K retrieval tuning, chunk overlap strategies, context compression, and re-ranking."},
+        {"id": "ai-08", "name": "LLM Error Handling & Fallback Architectures", "level": "Core", "tier": "Critical", "description": "HTTP 429 rate limit backoff, timeout cascades, and deterministic local knowledge safety nets."},
+        {"id": "ai-09", "name": "LangChain Chains & Agent Tools", "level": "Advanced", "tier": "Nice-to-have", "description": "Sequential chains, memory buffers, tool dispatch, and agentic workflows."},
+        {"id": "ai-10", "name": "LLM Output Evaluation & Guardrails", "level": "Advanced", "tier": "Important", "description": "JSON schema validation, Pydantic output parsers, safety guardrails, and latency auditing."}
+      ]
+    }
+  ]
+}
