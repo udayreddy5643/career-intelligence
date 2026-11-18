@@ -21,6 +21,9 @@ Route::get('/', function () {
 Route::prefix('candidate')->name('candidate.')->group(function () {
     // Main Career Intelligence CIA Interactive Workspace
     Route::get('/cia', [CiaController::class, 'index'])->name('cia');
+
+    // Week 7 Day 2: Module 1 Skill Gap Analysis (LlamaIndex + Groq Pipeline)
+    Route::post('/cia/career/skill-gap', [CiaController::class, 'careerSkillGap'])->name('cia.career.skill-gap');
 });
 
 /*
@@ -35,6 +38,6 @@ Route::prefix('api/cia')->name('api.cia.')->group(function () {
     // System health, provider operational states & telemetry
     Route::get('/status', [CiaController::class, 'status'])->name('status');
     
-    // Candidate skill gap computation algorithm
-    Route::post('/skill-gap', [CiaController::class, 'skillGap'])->name('skill-gap');
+    // Candidate skill gap computation algorithm (supports both standard and RAG endpoints)
+    Route::post('/skill-gap', [CiaController::class, 'careerSkillGap'])->name('skill-gap');
 });
