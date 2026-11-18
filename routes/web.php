@@ -30,6 +30,9 @@ Route::prefix('candidate')->name('candidate.')->group(function () {
 
     // Week 7 Day 4: Module 3 Internship Matching (ChromaDB Vector Search)
     Route::post('/cia/career/match-internships', [CiaController::class, 'matchInternships'])->name('cia.career.match-internships');
+
+    // Week 7 Day 5: Module 4 Learning Path Generator (LangGraph Workflow)
+    Route::post('/cia/career/learning-path', [CiaController::class, 'learningPath'])->name('cia.career.learning-path');
 });
 
 /*
@@ -52,4 +55,7 @@ Route::prefix('api/cia')->name('api.cia.')->group(function () {
 
     // ChromaDB Internship Vector Search Matching Endpoint
     Route::post('/match-internships', [CiaController::class, 'matchInternships'])->name('match-internships');
+
+    // LangGraph 8-Week Learning Path Generator Endpoint
+    Route::post('/learning-path', [CiaController::class, 'learningPath'])->name('learning-path');
 });

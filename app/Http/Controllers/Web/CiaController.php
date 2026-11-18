@@ -15,11 +15,15 @@ if (!class_exists(\App\Services\CareerAdvisorCrewService::class, false) && file_
 if (!class_exists(\App\Services\InternshipMatchingService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/InternshipMatchingService.php')) {
     require_once dirname(__DIR__, 2) . '/../Services/InternshipMatchingService.php';
 }
+if (!class_exists(\App\Services\LearningPathService::class, false) && file_exists(dirname(__DIR__, 2) . '/../Services/LearningPathService.php')) {
+    require_once dirname(__DIR__, 2) . '/../Services/LearningPathService.php';
+}
 
 use App\Services\CiaService;
 use App\Services\SkillGapRagService;
 use App\Services\CareerAdvisorCrewService;
 use App\Services\InternshipMatchingService;
+use App\Services\LearningPathService;
 
 /**
  * CIA Controller — Career Intelligence Agent Web & API Controller
@@ -37,17 +41,20 @@ class CiaController
     protected SkillGapRagService $skillGapRagService;
     protected CareerAdvisorCrewService $careerAdvisorCrewService;
     protected InternshipMatchingService $internshipMatchingService;
+    protected LearningPathService $learningPathService;
 
     public function __construct(
         ?CiaService $ciaService = null,
         ?SkillGapRagService $skillGapRagService = null,
         ?CareerAdvisorCrewService $careerAdvisorCrewService = null,
-        ?InternshipMatchingService $internshipMatchingService = null
+        ?InternshipMatchingService $internshipMatchingService = null,
+        ?LearningPathService $learningPathService = null
     ) {
         $this->ciaService = $ciaService ?: new CiaService();
         $this->skillGapRagService = $skillGapRagService ?: new SkillGapRagService($this->ciaService);
         $this->careerAdvisorCrewService = $careerAdvisorCrewService ?: new CareerAdvisorCrewService($this->ciaService);
         $this->internshipMatchingService = $internshipMatchingService ?: new InternshipMatchingService($this->ciaService);
+        $this->learningPathService = $learningPathService ?: new LearningPathService($this->ciaService);
     }
 
     /**
@@ -364,6 +371,40 @@ class CiaController
             $candidateId,
             $skills,
             $limit,
+            $forceFallback
+        );
+    }
+
+    /**
+     * API Contract: LangGraph 8-Week Learning Path Generator
+     * Endpoint: POST /candidate/cia/career/learning-path
+     *
+     * Executes LangGraph State Machine:
+     * AssessCurrentState -> IdentifyGaps -> GeneratePlan -> ValidatePlan -> OutputPlan
+     * Returns 8-week structured curriculum + Mermaid timeline diagram syntax.
+     *
+     * @param mixed $request
+     * @return array
+     */
+    public function learningPath($request = null): array
+    {
+        $data = [];
+        if (is_object($request) && method_exists($request, 'all')) {
+            $data = $request->all();
+        } elseif (is_array($request)) {
+            $data = $request;
+        } else {
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?: $_POST;
+        }
+
+        $candidateId = $data['candidate_id'] ?? 'CYN-2026-FS-0129';
+        $targetRole = $data['target_role'] ?? 'Full Stack Software Engineer';
+        $forceFallback = filter_var($data['force_fallback'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $this->learningPathService->generateLearningPath(
+            $candidateId,
+            $targetRole,
             $forceFallback
         );
     }
